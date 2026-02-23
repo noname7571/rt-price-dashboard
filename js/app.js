@@ -19,7 +19,7 @@
   //  Configuration
   // ─────────────────────────────────────────────────
 
-  const SYMBOLS          = ['btcusdt', 'ethusdt', 'solusdt'];
+  const SYMBOLS          = ['btcusdt', 'ethusdt', 'solusdt', 'bnbusdt', 'xrpusdt', 'adausdt', 'dogeusdt', 'avaxusdt', 'linkusdt'];
   const DEFAULT_SYMBOL   = 'btcusdt';
   const DEFAULT_INTERVAL = '1m';
   const DEFAULT_TYPE     = 'candlestick';
