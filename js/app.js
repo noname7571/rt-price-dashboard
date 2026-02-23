@@ -37,6 +37,8 @@
   // ─────────────────────────────────────────────────
 
   document.addEventListener('DOMContentLoaded', () => {
+    // 0. Theme — apply before any paint
+    initTheme();
     // 1. Chart — pass both container IDs
     const chart = new ChartManager('priceChart', 'volumeChart', (bar) => {
       UI.updateOHLC(bar);
@@ -60,13 +62,56 @@
     streams.start(DEFAULT_SYMBOL, DEFAULT_INTERVAL);
     chart.load(DEFAULT_SYMBOL, DEFAULT_INTERVAL, DEFAULT_TYPE);
 
-    // 5. Bind user interactions
+    // 5. Sparklines — fetch 24h of hourly closes for every symbol
+    SYMBOLS.forEach(fetchSparkline);
+
+    // 6. Bind user interactions
     bindTickerCards(streams, chart);
     bindIntervalButtons(streams, chart);
     bindChartTypeButtons(chart);
+    bindThemeToggle();
     bindTutorial();
     bindTipBanner();
   });
+
+  // ─────────────────────────────────────────────────
+  //  Theme toggle
+  // ─────────────────────────────────────────────────
+
+  const THEME_KEY = 'rt-dashboard-theme';
+
+  function initTheme() {
+    const saved = localStorage.getItem(THEME_KEY);
+    // Also respect prefers-color-scheme if no saved preference
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = saved || (prefersDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+  }
+
+  function bindThemeToggle() {
+    document.getElementById('themeToggleBtn')?.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next    = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem(THEME_KEY, next);
+    });
+  }
+
+  // ─────────────────────────────────────────────────
+  //  Sparkline fetch
+  // ─────────────────────────────────────────────────
+
+  async function fetchSparkline(symbol) {
+    try {
+      const url = `https://api.binance.com/api/v3/klines?symbol=${symbol.toUpperCase()}&interval=1h&limit=24`;
+      const res  = await fetch(url);
+      const data = await res.json();
+      const prices = data.map(c => parseFloat(c[4])); // close prices
+      UI.drawSparkline(symbol, prices);
+    } catch (e) {
+      console.warn('[sparkline] Failed for', symbol, e);
+    }
+  }
 
   // ─────────────────────────────────────────────────
   //  Stream callbacks

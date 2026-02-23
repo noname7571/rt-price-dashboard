@@ -209,6 +209,43 @@ const UI = (() => {
   }
 
   // ─────────────────────────────────────────────────
+  //  Sparkline
+  // ─────────────────────────────────────────────────
+
+  /**
+   * Draw a 24-point sparkline SVG path onto a ticker card.
+   * @param {string}   symbol  e.g. 'btcusdt'
+   * @param {number[]} prices  array of close prices (oldest → newest)
+   */
+  function drawSparkline(symbol, prices) {
+    const el = document.getElementById(`sparkline-${symbol}`);
+    if (!el || !prices || prices.length < 2) return;
+
+    const min = Math.min(...prices);
+    const max = Math.max(...prices);
+    const range = max - min || 1;
+    const W = 110, H = 28, PAD = 2;
+
+    const points = prices.map((p, i) => {
+      const x = (i / (prices.length - 1)) * W;
+      const y = H - PAD - ((p - min) / range) * (H - PAD * 2);
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+
+    const isUp  = prices[prices.length - 1] >= prices[0];
+    const color = isUp ? '#22c55e' : '#ef4444';
+
+    el.innerHTML = `<polyline
+      points="${points}"
+      fill="none"
+      stroke="${color}"
+      stroke-width="1.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />`;
+  }
+
+  // ─────────────────────────────────────────────────
   //  Public
   // ─────────────────────────────────────────────────
 
@@ -221,6 +258,7 @@ const UI = (() => {
     setConnectionStatus,
     updateOHLC,
     formatPrice,
+    drawSparkline,
   };
 
 })();
