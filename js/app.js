@@ -43,6 +43,8 @@
     const chart = new ChartManager('priceChart', 'volumeChart', (bar) => {
       UI.updateOHLC(bar);
     });
+    // Apply saved theme to chart (charts are always created with dark defaults)
+    chart.applyTheme(document.documentElement.getAttribute('data-theme') !== 'light');
 
     // 2. Streams
     const streams = new StreamManager(
@@ -73,7 +75,7 @@
     bindTickerCards(streams, chart);
     bindIntervalButtons(streams, chart);
     bindChartTypeButtons(chart);
-    bindThemeToggle();
+    bindThemeToggle(chart);
     bindFullscreen();
     bindKeyboardShortcuts(streams, chart);
     bindSortBar();
@@ -134,12 +136,13 @@
     document.documentElement.setAttribute('data-theme', theme);
   }
 
-  function bindThemeToggle() {
+  function bindThemeToggle(chart) {
     document.getElementById('themeToggleBtn')?.addEventListener('click', () => {
       const current = document.documentElement.getAttribute('data-theme');
       const next    = current === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', next);
       localStorage.setItem(THEME_KEY, next);
+      chart?.applyTheme(next === 'dark');
     });
   }
 

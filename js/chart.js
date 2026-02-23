@@ -225,6 +225,46 @@ class ChartManager {
     }
   }
 
+  applyTheme(isDark) {
+    const t = isDark ? {
+      priceBg:  '#13161e',
+      volBg:    '#0f111a',
+      text:     '#8b90a7',
+      grid:     'rgba(255,255,255,0.04)',
+      border:   'rgba(255,255,255,0.06)',
+      label:    '#252940',
+    } : {
+      priceBg:  '#ffffff',
+      volBg:    '#f0f2f7',
+      text:     '#4b5073',
+      grid:     'rgba(0,0,0,0.05)',
+      border:   'rgba(0,0,0,0.08)',
+      label:    '#dde0ea',
+    };
+
+    const sharedLayout  = { textColor: t.text };
+    const sharedGrid    = { vertLines: { color: t.grid }, horzLines: { color: t.grid } };
+    const sharedCross   = {
+      vertLine: { color: 'rgba(99,102,241,0.5)', labelBackgroundColor: t.label },
+      horzLine: { color: 'rgba(99,102,241,0.5)', labelBackgroundColor: t.label },
+    };
+    const sharedBorder  = { rightPriceScale: { borderColor: t.border }, timeScale: { borderColor: t.border } };
+
+    this._priceChart?.applyOptions({
+      layout:    { ...sharedLayout, background: { color: t.priceBg } },
+      grid:      sharedGrid,
+      crosshair: sharedCross,
+      ...sharedBorder,
+    });
+
+    this._volumeChart?.applyOptions({
+      layout:    { ...sharedLayout, background: { color: t.volBg } },
+      grid:      { vertLines: { color: t.grid }, horzLines: { color: 'transparent' } },
+      crosshair: { ...sharedCross, horzLine: { visible: false } },
+      ...sharedBorder,
+    });
+  }
+
   destroy() {
     if (this._resizeObserver) this._resizeObserver.disconnect();
     if (this._priceChart)  this._priceChart.remove();
