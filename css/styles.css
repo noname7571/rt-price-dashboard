@@ -87,7 +87,11 @@ body {
   user-select: none;
 }
 
-.header__dot {
+.header__meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
   width: 10px;
   height: 10px;
   border-radius: 50%;
@@ -758,6 +762,60 @@ body {
   color: #fff;
   border-color: var(--accent);
 }
+
+/* ══════════════════════════════════════════════
+   FEAR & GREED WIDGET
+══════════════════════════════════════════════ */
+.fear-greed-widget {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-mid);
+  font-size: 12px;
+  color: var(--text-secondary);
+  cursor: default;
+  user-select: none;
+}
+
+.fear-greed-widget__label {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  font-size: 10px;
+}
+
+.fear-greed-widget__value {
+  font-weight: 700;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  transition: color var(--transition);
+}
+
+.fear-greed-widget__class {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+/* Colour per sentiment */
+.fear-greed-widget[data-sentiment="extreme-fear"]  .fear-greed-widget__value,
+.fear-greed-widget[data-sentiment="extreme-fear"]  .fear-greed-widget__class { color: #ef4444; }
+
+.fear-greed-widget[data-sentiment="fear"]          .fear-greed-widget__value,
+.fear-greed-widget[data-sentiment="fear"]          .fear-greed-widget__class { color: #f97316; }
+
+.fear-greed-widget[data-sentiment="neutral"]       .fear-greed-widget__value,
+.fear-greed-widget[data-sentiment="neutral"]       .fear-greed-widget__class { color: #eab308; }
+
+.fear-greed-widget[data-sentiment="greed"]         .fear-greed-widget__value,
+.fear-greed-widget[data-sentiment="greed"]         .fear-greed-widget__class { color: #84cc16; }
+
+.fear-greed-widget[data-sentiment="extreme-greed"] .fear-greed-widget__value,
+.fear-greed-widget[data-sentiment="extreme-greed"] .fear-greed-widget__class { color: #22c55e; }
 
 /* ══════════════════════════════════════════════
    FULLSCREEN

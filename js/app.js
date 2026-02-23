@@ -65,7 +65,11 @@
     // 5. Sparklines — fetch 24h of hourly closes for every symbol
     SYMBOLS.forEach(fetchSparkline);
 
-    // 6. Bind user interactions
+    // 6. Fear & Greed index (refreshes every 5 min)
+    fetchFearGreed();
+    setInterval(fetchFearGreed, 5 * 60 * 1000);
+
+    // 7. Bind user interactions
     bindTickerCards(streams, chart);
     bindIntervalButtons(streams, chart);
     bindChartTypeButtons(chart);
@@ -75,6 +79,40 @@
     bindTutorial();
     bindTipBanner();
   });
+
+  // ─────────────────────────────────────────────────
+  //  Fear & Greed index
+  // ─────────────────────────────────────────────────
+
+  async function fetchFearGreed() {
+    try {
+      const res  = await fetch('https://api.alternative.me/fng/?limit=1');
+      const json = await res.json();
+      const item = json?.data?.[0];
+      if (!item) return;
+
+      const value = parseInt(item.value, 10);
+      const classification = item.value_classification; // e.g. 'Fear'
+
+      const sentiment =
+        value <= 24 ? 'extreme-fear' :
+        value <= 49 ? 'fear'         :
+        value === 50 ? 'neutral'     :
+        value <= 74 ? 'greed'        : 'extreme-greed';
+
+      const widget = document.getElementById('fearGreedWidget');
+      if (widget) {
+        widget.setAttribute('data-sentiment', sentiment);
+        widget.title = `Fear & Greed Index: ${value} — ${classification}`;
+      }
+      const valEl   = document.getElementById('fearGreedValue');
+      const classEl = document.getElementById('fearGreedClass');
+      if (valEl)   valEl.textContent   = value;
+      if (classEl) classEl.textContent = classification;
+    } catch (e) {
+      console.warn('[FearGreed] Failed to fetch:', e);
+    }
+  }
 
   // ─────────────────────────────────────────────────
   //  Theme toggle
