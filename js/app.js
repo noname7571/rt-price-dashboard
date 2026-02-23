@@ -71,6 +71,7 @@
     bindChartTypeButtons(chart);
     bindThemeToggle();
     bindFullscreen();
+    bindKeyboardShortcuts(streams, chart);
     bindTutorial();
     bindTipBanner();
   });
@@ -220,6 +221,82 @@
       UI.setActiveChartType(type);
       chart.setSeriesType(type);
     });
+  }
+
+  // ─────────────────────────────────────────────────
+  //  Keyboard shortcuts
+  // ─────────────────────────────────────────────────
+
+  const INTERVALS = ['1m', '5m', '15m', '1h', '4h', '1d'];
+
+  function bindKeyboardShortcuts(streams, chart) {
+    document.addEventListener('keydown', (e) => {
+      // Ignore when typing in inputs
+      if (document.activeElement.tagName === 'INPUT' ||
+          document.activeElement.tagName === 'TEXTAREA') return;
+      // Ignore modifier combos
+      if (e.ctrlKey || e.metaKey || e.altKey) return;
+
+      switch (e.key) {
+        // j / ArrowRight — next token
+        case 'j':
+        case 'ArrowRight': {
+          const idx = SYMBOLS.indexOf(activeSymbol);
+          const next = SYMBOLS[(idx + 1) % SYMBOLS.length];
+          selectSymbol(next, streams, chart);
+          break;
+        }
+        // k / ArrowLeft — prev token
+        case 'k':
+        case 'ArrowLeft': {
+          const idx = SYMBOLS.indexOf(activeSymbol);
+          const prev = SYMBOLS[(idx - 1 + SYMBOLS.length) % SYMBOLS.length];
+          selectSymbol(prev, streams, chart);
+          break;
+        }
+        // 1–6 — switch interval
+        case '1': selectInterval('1m',  streams, chart); break;
+        case '2': selectInterval('5m',  streams, chart); break;
+        case '3': selectInterval('15m', streams, chart); break;
+        case '4': selectInterval('1h',  streams, chart); break;
+        case '5': selectInterval('4h',  streams, chart); break;
+        case '6': selectInterval('1d',  streams, chart); break;
+        // c — toggle chart type
+        case 'c': {
+          const next = activeType === 'candlestick' ? 'line' : 'candlestick';
+          activeType = next;
+          UI.setActiveChartType(next);
+          chart.setSeriesType(next);
+          break;
+        }
+        // ? — open tutorial
+        case '?':
+          document.getElementById('helpBtn')?.click();
+          break;
+      }
+    });
+  }
+
+  /** Shared helper — switch active symbol (used by clicks AND keyboard). */
+  function selectSymbol(symbol, streams, chart) {
+    if (symbol === activeSymbol) return;
+    activeSymbol = symbol;
+    UI.setActiveCard(symbol);
+    UI.setChartSymbolLabel(symbol);
+    UI.updateOHLC(null);
+    streams.switchKline(symbol, activeInterval);
+    chart.load(symbol, activeInterval, activeType);
+  }
+
+  /** Shared helper — switch interval. */
+  function selectInterval(interval, streams, chart) {
+    if (interval === activeInterval) return;
+    activeInterval = interval;
+    UI.setActiveInterval(interval);
+    UI.setActiveChartType(activeType); // re-sync label suffix
+    UI.updateOHLC(null);
+    streams.switchKline(activeSymbol, interval);
+    chart.load(activeSymbol, interval, activeType);
   }
 
   // ─────────────────────────────────────────────────
