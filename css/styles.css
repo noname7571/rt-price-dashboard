@@ -1051,6 +1051,52 @@ body {
 }
 
 /* ══════════════════════════════════════════════
+   MULTI-TIMEFRAME PANEL
+══════════════════════════════════════════════ */
+
+/* Active state of the toolbar button */
+.btn-multitf.is-active {
+  background: var(--bg-active);
+  color: var(--accent);
+}
+
+.multitf-panel {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border-subtle);
+  flex: 1;           /* fills the chart-panel's remaining height */
+  min-height: 0;
+  overflow: hidden;
+}
+
+.multitf-panel[hidden] { display: none; }
+
+.multitf-chart {
+  background: var(--bg-surface);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.multitf-chart__label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  padding: 5px 10px;
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.multitf-chart__canvas {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+/* ══════════════════════════════════════════════
    CORRELATION MATRIX MODAL
 ══════════════════════════════════════════════ */
 

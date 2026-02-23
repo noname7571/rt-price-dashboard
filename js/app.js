@@ -79,6 +79,7 @@
     bindSortBar();
     initWatchlist();
     bindViewToggle(streams, chart);
+    bindMultiTF(streams, chart);
     bindCorrelationModal();
     bindAlertsModal();
     bindTutorial();
@@ -389,6 +390,28 @@
         document.getElementById('heatmapPanel')?.removeAttribute('hidden');
       } else {
         switchToCardsView();
+      }
+    });
+  }
+
+  // ─────────────────────────────────────────────────
+  //  Multi-timeframe toggle
+  // ─────────────────────────────────────────────────
+
+  function bindMultiTF(streams, chart) {
+    if (typeof MultiTF === 'undefined') return;
+    const btn = document.getElementById('multitfBtn');
+    if (!btn) return;
+
+    btn.addEventListener('click', () => {
+      if (MultiTF.isOpen()) {
+        MultiTF.close();
+        btn.classList.remove('is-active');
+        btn.setAttribute('aria-pressed', 'false');
+      } else {
+        MultiTF.open(activeSymbol);
+        btn.classList.add('is-active');
+        btn.setAttribute('aria-pressed', 'true');
       }
     });
   }
@@ -729,6 +752,8 @@
     UI.updateOHLC(null);
     streams.switchKline(symbol, activeInterval);
     chart.load(symbol, activeInterval, activeType);
+    // Update multi-TF panel if it's open
+    if (typeof MultiTF !== 'undefined' && MultiTF.isOpen()) MultiTF.update(symbol);
   }
 
   /** Shared helper — switch interval. */

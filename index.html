@@ -247,6 +247,14 @@
           <button class="btn-group__btn" data-type="line">Line</button>
         </div>
 
+        <!-- Multi-timeframe toggle -->
+        <button class="btn-icon btn-multitf" id="multitfBtn" title="Multi-timeframe view (1H / 4H / 1D)" aria-label="Toggle multi-timeframe panel" aria-pressed="false">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <rect x="2" y="3" width="20" height="4" rx="1"/>
+            <rect x="2" y="10" width="20" height="4" rx="1"/>
+            <rect x="2" y="17" width="20" height="4" rx="1"/>
+          </svg>
+        </button>
         <!-- Correlation matrix button -->
         <button class="btn-icon" id="corrBtn" title="Correlation matrix (all tokens)" aria-label="Open correlation matrix">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -282,6 +290,22 @@
       <span class="tip-banner__text">New to crypto charts? <strong>Green candles</strong> = price went up · <strong>Red candles</strong> = price went down · <strong>Volume bars</strong> show how much was traded.</span>
       <button class="tip-banner__learn" id="tipLearnMore">Learn more</button>
       <button class="tip-banner__dismiss" id="tipDismiss" aria-label="Dismiss tip">✕</button>
+    </div>
+
+    <!-- Multi-Timeframe panel (1H / 4H / 1D side by side) -->
+    <div class="multitf-panel" id="multitfPanel" hidden>
+      <div class="multitf-chart">
+        <div class="multitf-chart__label">1H</div>
+        <div class="multitf-chart__canvas" id="mtf-canvas-1h"></div>
+      </div>
+      <div class="multitf-chart">
+        <div class="multitf-chart__label">4H</div>
+        <div class="multitf-chart__canvas" id="mtf-canvas-4h"></div>
+      </div>
+      <div class="multitf-chart">
+        <div class="multitf-chart__label">1D</div>
+        <div class="multitf-chart__canvas" id="mtf-canvas-1d"></div>
+      </div>
     </div>
 
     <!-- Chart containers -->
@@ -435,6 +459,7 @@
   <!-- ───────────── SCRIPTS ───────────── -->
   <script src="js/alerts.js"></script>
   <script src="js/correlation.js"></script>
+  <script src="js/multitf.js"></script>
   <script src="js/websocket.js"></script>
   <script src="js/chart.js"></script>
   <script src="js/ui.js"></script>
