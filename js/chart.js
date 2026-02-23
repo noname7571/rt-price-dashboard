@@ -21,7 +21,7 @@ const HISTORY_LIMIT = 200;
 
 // ── Shared theme ────────────────────────────────────
 const SHARED_LAYOUT = {
-  background:  { color: '#13161e' },
+  background:  { type: 'solid', color: '#13161e' },
   textColor:   '#8b90a7',
   fontSize:    11,
   fontFamily:  "'Inter', 'Segoe UI', system-ui, sans-serif",
@@ -63,7 +63,7 @@ const PRICE_CHART_OPTIONS = {
 const VOLUME_CHART_OPTIONS = {
   layout: {
     ...SHARED_LAYOUT,
-    background: { color: '#0f111a' }, // slightly darker to differentiate
+    background: { type: 'solid', color: '#0f111a' }, // slightly darker to differentiate
   },
   grid: {
     vertLines: { color: 'rgba(255,255,255,0.04)' },
@@ -251,14 +251,14 @@ class ChartManager {
     const sharedBorder  = { rightPriceScale: { borderColor: t.border }, timeScale: { borderColor: t.border } };
 
     this._priceChart?.applyOptions({
-      layout:    { ...sharedLayout, background: { color: t.priceBg } },
+      layout:    { ...sharedLayout, background: { type: 'solid', color: t.priceBg } },
       grid:      sharedGrid,
       crosshair: sharedCross,
       ...sharedBorder,
     });
 
     this._volumeChart?.applyOptions({
-      layout:    { ...sharedLayout, background: { color: t.volBg } },
+      layout:    { ...sharedLayout, background: { type: 'solid', color: t.volBg } },
       grid:      { vertLines: { color: t.grid }, horzLines: { color: 'transparent' } },
       crosshair: { ...sharedCross, horzLine: { visible: false } },
       ...sharedBorder,
