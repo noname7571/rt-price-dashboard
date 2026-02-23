@@ -78,6 +78,7 @@
     bindKeyboardShortcuts(streams, chart);
     bindSortBar();
     bindViewToggle(streams, chart);
+    bindCorrelationModal();
     bindAlertsModal();
     bindTutorial();
     bindTipBanner();
@@ -258,6 +259,24 @@
       } else {
         switchToCardsView();
       }
+    });
+  }
+
+  // ─────────────────────────────────────────────────
+  //  Correlation matrix
+  // ─────────────────────────────────────────────────
+
+  function bindCorrelationModal() {
+    if (typeof Correlation === 'undefined') return;
+    const openBtn  = document.getElementById('corrBtn');
+    const closeBtn = document.getElementById('corrModalClose');
+    const modal    = document.getElementById('corrModal');
+    if (!openBtn || !modal) return;
+
+    openBtn.addEventListener('click', () => Correlation.open());
+    closeBtn?.addEventListener('click', () => Correlation.close());
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) Correlation.close();
     });
   }
 

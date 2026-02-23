@@ -247,6 +247,13 @@
           <button class="btn-group__btn" data-type="line">Line</button>
         </div>
 
+        <!-- Correlation matrix button -->
+        <button class="btn-icon" id="corrBtn" title="Correlation matrix (all tokens)" aria-label="Open correlation matrix">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+        </button>
         <!-- Help button -->
         <button class="btn-help" id="helpBtn" title="Learn what everything means" aria-label="Open chart guide">?</button>
         <!-- Fullscreen button -->
@@ -369,6 +376,21 @@
     </div>
   </div>
 
+  <!-- ───────────── CORRELATION MODAL ───────────── -->
+  <dialog class="corr-modal" id="corrModal" aria-modal="true" aria-labelledby="corrModalTitle">
+    <div class="corr-modal__inner">
+      <div class="corr-modal__header">
+        <h2 class="corr-modal__title" id="corrModalTitle">Correlation Matrix</h2>
+        <button class="btn-icon corr-modal__close" id="corrModalClose" aria-label="Close correlation matrix">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="corr-body" id="corrBody">
+        <p class="corr-loading">Loading…</p>
+      </div>
+    </div>
+  </dialog>
+
   <!-- ───────────── PRICE ALERTS MODAL ───────────── -->
   <dialog class="alert-modal" id="alertModal" aria-modal="true" aria-labelledby="alertModalTitle">
     <div class="alert-modal__inner">
@@ -412,6 +434,7 @@
 
   <!-- ───────────── SCRIPTS ───────────── -->
   <script src="js/alerts.js"></script>
+  <script src="js/correlation.js"></script>
   <script src="js/websocket.js"></script>
   <script src="js/chart.js"></script>
   <script src="js/ui.js"></script>
