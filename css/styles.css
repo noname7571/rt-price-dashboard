@@ -58,7 +58,7 @@ html, body {
 
 body {
   display: grid;
-  grid-template-rows: 56px auto 1fr;
+  grid-template-rows: 56px auto auto 1fr;
   grid-template-columns: 1fr;
   min-height: 100vh;
   overflow-x: hidden;
@@ -138,10 +138,33 @@ body {
 }
 
 /* ══════════════════════════════════════════════
+   SORT BAR
+══════════════════════════════════════════════ */
+.sort-bar {
+  grid-row: 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 20px;
+  background: var(--bg-base);
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink: 0;
+}
+
+.sort-bar__label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  user-select: none;
+}
+
+/* ══════════════════════════════════════════════
    TICKER CARDS
 ══════════════════════════════════════════════ */
 .tickers {
-  grid-row: 2;
+  grid-row: 3;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1px;
@@ -264,7 +287,7 @@ body {
    CHART PANEL
 ══════════════════════════════════════════════ */
 .chart-panel {
-  grid-row: 3;
+  grid-row: 4;
   display: flex;
   flex-direction: column;
   background: var(--bg-surface);

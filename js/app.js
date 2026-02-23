@@ -76,6 +76,7 @@
     bindThemeToggle();
     bindFullscreen();
     bindKeyboardShortcuts(streams, chart);
+    bindSortBar();
     bindTutorial();
     bindTipBanner();
   });
@@ -172,10 +173,63 @@
   }
 
   // ─────────────────────────────────────────────────
+  //  Movers sort
+  // ─────────────────────────────────────────────────
+
+  // Last-known ticker data per symbol — populated by handleTickerUpdate
+  const _tickerData = {};
+
+  function bindSortBar() {
+    const group = document.getElementById('sortGroup');
+    if (!group) return;
+    group.addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn-group__btn');
+      if (!btn) return;
+      const sort = btn.dataset.sort;
+      if (!sort) return;
+      group.querySelectorAll('.btn-group__btn').forEach(b =>
+        b.classList.toggle('btn-group__btn--active', b === btn)
+      );
+      sortTickerCards(sort);
+    });
+  }
+
+  function sortTickerCards(sort) {
+    const list = document.getElementById('tickerList');
+    if (!list) return;
+
+    const cards = Array.from(list.querySelectorAll('.ticker-card'));
+    if (sort === 'default') {
+      // Restore original SYMBOLS order
+      SYMBOLS.forEach(sym => {
+        const card = list.querySelector(`[data-symbol="${sym}"]`);
+        if (card) list.appendChild(card);
+      });
+      return;
+    }
+
+    cards.sort((a, b) => {
+      const da = _tickerData[a.dataset.symbol] || {};
+      const db = _tickerData[b.dataset.symbol] || {};
+      if (sort === 'change')  return (db.change  || 0) - (da.change  || 0);
+      if (sort === 'volume')  return (db.volume  || 0) - (da.volume  || 0);
+      if (sort === 'price')   return (db.price   || 0) - (da.price   || 0);
+      return 0;
+    });
+    cards.forEach(card => list.appendChild(card));
+  }
+
+  // ─────────────────────────────────────────────────
   //  Stream callbacks
   // ─────────────────────────────────────────────────
 
   function handleTickerUpdate(symbol, data) {
+    // Cache latest values for movers sort
+    _tickerData[symbol] = {
+      price:  parseFloat(data.c),
+      change: parseFloat(data.P),
+      volume: parseFloat(data.q),
+    };
     UI.updateTickerCard(symbol, data);
   }
 
