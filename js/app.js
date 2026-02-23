@@ -77,6 +77,7 @@
     bindFullscreen();
     bindKeyboardShortcuts(streams, chart);
     bindSortBar();
+    initWatchlist();
     bindViewToggle(streams, chart);
     bindCorrelationModal();
     bindAlertsModal();
@@ -181,6 +182,136 @@
 
   // Last-known ticker data per symbol — populated by handleTickerUpdate
   const _tickerData = {};
+
+  // ─────────────────────────────────────────────────
+  //  Custom watchlist — drag-to-reorder + pin
+  // ─────────────────────────────────────────────────
+
+  const WATCHLIST_KEY = 'rt-dashboard-watchlist';
+
+  function _loadWatchlist() {
+    try { return JSON.parse(localStorage.getItem(WATCHLIST_KEY)) || {}; }
+    catch { return {}; }
+  }
+
+  function _saveWatchlist() {
+    const list   = document.getElementById('tickerList');
+    const order  = [];
+    const pinned = [];
+    list?.querySelectorAll('.ticker-card').forEach(card => {
+      const sym = card.dataset.symbol;
+      if (sym) {
+        order.push(sym);
+        if (card.classList.contains('ticker-card--pinned')) pinned.push(sym);
+      }
+    });
+    localStorage.setItem(WATCHLIST_KEY, JSON.stringify({ order, pinned }));
+  }
+
+  function initWatchlist() {
+    const list = document.getElementById('tickerList');
+    if (!list) return;
+
+    const saved = _loadWatchlist();
+
+    // Inject pin button + make each card draggable
+    list.querySelectorAll('.ticker-card').forEach(card => {
+      card.setAttribute('draggable', 'true');
+
+      // Pin button — inserted after .ticker-card__change
+      const pin = document.createElement('button');
+      pin.className = 'ticker-card__pin';
+      pin.setAttribute('aria-label', `Pin ${(card.dataset.symbol || '').replace('usdt','').toUpperCase()}`);
+      pin.setAttribute('aria-pressed', 'false');
+      pin.title = 'Pin / unpin card';
+      pin.type  = 'button';
+      pin.innerHTML =
+        `<svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">`
+        + `<path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>`
+        + `</svg>`;
+
+      pin.addEventListener('click', (e) => {
+        e.stopPropagation();       // don't trigger card click / symbol switch
+        const isPinned = card.classList.toggle('ticker-card--pinned');
+        pin.setAttribute('aria-pressed', isPinned ? 'true' : 'false');
+        _saveWatchlist();
+      });
+
+      const header = card.querySelector('.ticker-card__header');
+      if (header) header.appendChild(pin);
+
+      // Restore pinned state
+      if (saved.pinned?.includes(card.dataset.symbol)) {
+        card.classList.add('ticker-card--pinned');
+        pin.setAttribute('aria-pressed', 'true');
+      }
+    });
+
+    // Restore saved order
+    if (saved.order?.length) {
+      saved.order.forEach(sym => {
+        const card = list.querySelector(`[data-symbol="${sym}"]`);
+        if (card) list.appendChild(card);
+      });
+    }
+
+    _bindDragAndDrop(list);
+  }
+
+  function _bindDragAndDrop(list) {
+    let dragged = null;
+
+    list.addEventListener('dragstart', (e) => {
+      const card = e.target.closest('.ticker-card');
+      if (!card) return;
+      dragged = card;
+      // Small timeout so the snapshot doesn't show the dragging style
+      requestAnimationFrame(() => card.classList.add('ticker-card--dragging'));
+      e.dataTransfer.effectAllowed = 'move';
+    });
+
+    list.addEventListener('dragend', () => {
+      if (dragged) dragged.classList.remove('ticker-card--dragging');
+      list.querySelectorAll('.ticker-card--drag-over')
+          .forEach(c => c.classList.remove('ticker-card--drag-over'));
+      dragged = null;
+      _saveWatchlist();
+    });
+
+    list.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      const target = e.target.closest('.ticker-card');
+      if (!target || target === dragged) return;
+      list.querySelectorAll('.ticker-card--drag-over')
+          .forEach(c => c.classList.remove('ticker-card--drag-over'));
+      target.classList.add('ticker-card--drag-over');
+    });
+
+    list.addEventListener('dragleave', (e) => {
+      if (!list.contains(e.relatedTarget)) {
+        list.querySelectorAll('.ticker-card--drag-over')
+            .forEach(c => c.classList.remove('ticker-card--drag-over'));
+      }
+    });
+
+    list.addEventListener('drop', (e) => {
+      e.preventDefault();
+      const target = e.target.closest('.ticker-card');
+      target?.classList.remove('ticker-card--drag-over');
+      if (!target || target === dragged || !dragged) return;
+
+      const all       = Array.from(list.querySelectorAll('.ticker-card'));
+      const dragIdx   = all.indexOf(dragged);
+      const targetIdx = all.indexOf(target);
+
+      if (dragIdx < targetIdx) {
+        list.insertBefore(dragged, target.nextElementSibling);
+      } else {
+        list.insertBefore(dragged, target);
+      }
+    });
+  }
 
   // ─────────────────────────────────────────────────
   //  Heatmap view
@@ -414,8 +545,10 @@
 
     const cards = Array.from(list.querySelectorAll('.ticker-card'));
     if (sort === 'default') {
-      // Restore original SYMBOLS order
-      SYMBOLS.forEach(sym => {
+      // Restore watchlist-saved order (falls back to SYMBOLS order)
+      const saved = _loadWatchlist();
+      const order = saved.order?.length ? saved.order : SYMBOLS;
+      order.forEach(sym => {
         const card = list.querySelector(`[data-symbol="${sym}"]`);
         if (card) list.appendChild(card);
       });
