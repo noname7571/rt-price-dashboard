@@ -135,6 +135,8 @@ class ChartManager {
     this._initCharts();
     this._syncTimescales();
     this._bindResize();
+    // Always apply theme after chart creation
+    this.applyTheme(document.documentElement.getAttribute('data-theme') !== 'light');
   }
 
   // ─────────────────────────────────────────────────
@@ -443,6 +445,8 @@ class ChartManager {
           height: this._volumeWrapper.clientHeight,
         });
       }
+      // Always re-apply theme after resize (fixes background reset bug)
+      this.applyTheme(document.documentElement.getAttribute('data-theme') !== 'light');
     });
     this._resizeObserver.observe(this._priceWrapper);
     this._resizeObserver.observe(this._volumeWrapper);
