@@ -70,6 +70,7 @@
     bindIntervalButtons(streams, chart);
     bindChartTypeButtons(chart);
     bindThemeToggle();
+    bindFullscreen();
     bindTutorial();
     bindTipBanner();
   });
@@ -95,6 +96,24 @@
       document.documentElement.setAttribute('data-theme', next);
       localStorage.setItem(THEME_KEY, next);
     });
+  }
+
+  // ─────────────────────────────────────────────────
+  //  Fullscreen
+  // ─────────────────────────────────────────────────
+
+  function bindFullscreen() {
+    const chartPanel = document.querySelector('.chart-panel');
+    document.getElementById('fullscreenBtn')?.addEventListener('click', toggleFullscreen);
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'f' && !e.ctrlKey && !e.metaKey && !e.altKey &&
+          document.activeElement.tagName !== 'INPUT') {
+        toggleFullscreen();
+      }
+    });
+    function toggleFullscreen() {
+      chartPanel?.classList.toggle('is-fullscreen');
+    }
   }
 
   // ─────────────────────────────────────────────────

@@ -760,6 +760,21 @@ body {
 }
 
 /* ══════════════════════════════════════════════
+   FULLSCREEN
+══════════════════════════════════════════════ */
+.chart-panel.is-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  border-radius: 0;
+}
+
+/* Icon visibility */
+.chart-panel            .icon-compress { display: none; }
+.chart-panel.is-fullscreen .icon-expand  { display: none; }
+.chart-panel.is-fullscreen .icon-compress { display: inline; }
+
+/* ══════════════════════════════════════════════
    SPARKLINES
 ══════════════════════════════════════════════ */
 .ticker-card__sparkline {
