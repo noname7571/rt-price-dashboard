@@ -27,6 +27,14 @@
         <span class="connection-badge__dot"></span>
         <span class="connection-badge__label" id="connectionLabel">Connecting…</span>
       </span>
+      <button class="btn-icon" id="alertsBtn" title="Price alerts" aria-label="Open price alerts">
+        <!-- bell icon -->
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+        </svg>
+        <span class="alerts-badge" id="alertsBadge" hidden></span>
+      </button>
       <button class="btn-icon" id="themeToggleBtn" title="Toggle light / dark theme" aria-label="Toggle theme">
         <svg class="icon-moon" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         <svg class="icon-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
@@ -361,7 +369,49 @@
     </div>
   </div>
 
+  <!-- ───────────── PRICE ALERTS MODAL ───────────── -->
+  <dialog class="alert-modal" id="alertModal" aria-modal="true" aria-labelledby="alertModalTitle">
+    <div class="alert-modal__inner">
+      <div class="alert-modal__header">
+        <h2 class="alert-modal__title" id="alertModalTitle">Price Alerts</h2>
+        <button class="btn-icon alert-modal__close" id="alertModalClose" aria-label="Close alerts">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <form class="alert-form" id="alertForm" novalidate>
+        <div class="alert-form__row">
+          <select class="alert-form__select" id="alertSymbolSelect" aria-label="Token">
+            <option value="btcusdt">BTC/USDT</option>
+            <option value="ethusdt">ETH/USDT</option>
+            <option value="solusdt">SOL/USDT</option>
+            <option value="bnbusdt">BNB/USDT</option>
+            <option value="xrpusdt">XRP/USDT</option>
+            <option value="adausdt">ADA/USDT</option>
+            <option value="dogeusdt">DOGE/USDT</option>
+            <option value="avaxusdt">AVAX/USDT</option>
+            <option value="linkusdt">LINK/USDT</option>
+          </select>
+          <div class="btn-group" id="alertDirGroup">
+            <button type="button" class="btn-group__btn btn-group__btn--active" data-dir="above">▲ Above</button>
+            <button type="button" class="btn-group__btn" data-dir="below">▼ Below</button>
+          </div>
+        </div>
+        <div class="alert-form__row">
+          <input class="alert-form__input" id="alertPriceInput" type="number" placeholder="Target price (USDT)" min="0" step="any" required aria-label="Target price" />
+          <button class="btn alert-form__submit" type="submit">Add Alert</button>
+        </div>
+        <p class="alert-form__hint" id="alertFormHint"></p>
+      </form>
+
+      <div class="alert-list" id="alertList">
+        <p class="alert-list__empty">No alerts set.</p>
+      </div>
+    </div>
+  </dialog>
+
   <!-- ───────────── SCRIPTS ───────────── -->
+  <script src="js/alerts.js"></script>
   <script src="js/websocket.js"></script>
   <script src="js/chart.js"></script>
   <script src="js/ui.js"></script>

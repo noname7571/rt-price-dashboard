@@ -78,6 +78,7 @@
     bindKeyboardShortcuts(streams, chart);
     bindSortBar();
     bindViewToggle(streams, chart);
+    bindAlertsModal();
     bindTutorial();
     bindTipBanner();
   });
@@ -260,6 +261,119 @@
     });
   }
 
+  // ─────────────────────────────────────────────────
+  //  Price alerts modal
+  // ─────────────────────────────────────────────────
+
+  function _refreshAlertBadge() {
+    const badge = document.getElementById('alertsBadge');
+    if (!badge) return;
+    const count = Alerts.getAll().length;
+    if (count > 0) badge.removeAttribute('hidden');
+    else           badge.setAttribute('hidden', '');
+  }
+
+  function _refreshAlertList() {
+    const list = document.getElementById('alertList');
+    if (!list) return;
+    const alerts = Alerts.getAll();
+
+    if (alerts.length === 0) {
+      list.innerHTML = '<p class="alert-list__empty">No alerts set.</p>';
+      return;
+    }
+
+    list.innerHTML = '';
+    alerts.forEach(alert => {
+      const base     = alert.symbol.replace('usdt', '').toUpperCase();
+      const dirLabel = alert.direction === 'above' ? '▲ above' : '▼ below';
+      const item     = document.createElement('div');
+      item.className = 'alert-item';
+      item.innerHTML = `
+        <div class="alert-item__info">
+          <span class="alert-item__label">${base}/USDT</span>
+          <span class="alert-item__sub">${dirLabel} $${Number(alert.price).toLocaleString('en-US', { maximumFractionDigits: 6 })}</span>
+        </div>
+        <button class="alert-item__remove" data-id="${alert.id}" aria-label="Remove alert">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      `;
+      item.querySelector('.alert-item__remove').addEventListener('click', () => {
+        Alerts.remove(alert.id);
+        _refreshAlertList();
+        _refreshAlertBadge();
+      });
+      list.appendChild(item);
+    });
+  }
+
+  function bindAlertsModal() {
+    if (typeof Alerts === 'undefined') return;
+
+    const modal      = document.getElementById('alertModal');
+    const openBtn    = document.getElementById('alertsBtn');
+    const closeBtn   = document.getElementById('alertModalClose');
+    const form       = document.getElementById('alertForm');
+    const dirGroup   = document.getElementById('alertDirGroup');
+    const priceInput = document.getElementById('alertPriceInput');
+    const hint       = document.getElementById('alertFormHint');
+
+    if (!modal || !openBtn) return;
+
+    // Track selected direction
+    let selectedDir = 'above';
+    dirGroup?.addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn-group__btn');
+      if (!btn || !btn.dataset.dir) return;
+      selectedDir = btn.dataset.dir;
+      dirGroup.querySelectorAll('.btn-group__btn').forEach(b =>
+        b.classList.toggle('btn-group__btn--active', b === btn)
+      );
+    });
+
+    // Open modal
+    openBtn.addEventListener('click', async () => {
+      // Request notification permission on first open
+      if (Notification?.permission === 'default') {
+        const granted = await Alerts.requestPermission();
+        if (hint) {
+          hint.className = 'alert-form__hint' + (granted ? '' : ' alert-form__hint--error');
+          hint.textContent = granted
+            ? 'Notifications enabled.'
+            : 'Notifications blocked — alerts will be silent.';
+          setTimeout(() => { if (hint) hint.textContent = ''; }, 3000);
+        }
+      }
+      _refreshAlertList();
+      modal.showModal?.() || modal.setAttribute('open', '');
+    });
+
+    // Close modal
+    closeBtn?.addEventListener('click', () => modal.close?.() || modal.removeAttribute('open'));
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) modal.close?.() || modal.removeAttribute('open');
+    });
+
+    // Submit form
+    form?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const symbol = document.getElementById('alertSymbolSelect')?.value;
+      const price  = parseFloat(priceInput?.value);
+      if (!symbol || isNaN(price) || price <= 0) {
+        if (hint) { hint.className = 'alert-form__hint alert-form__hint--error'; hint.textContent = 'Enter a valid price.'; }
+        return;
+      }
+      Alerts.add(symbol, price, selectedDir);
+      priceInput.value = '';
+      if (hint) { hint.className = 'alert-form__hint'; hint.textContent = 'Alert added!'; setTimeout(() => { if (hint) hint.textContent = ''; }, 2000); }
+      _refreshAlertList();
+      _refreshAlertBadge();
+    });
+
+    // Sync badge on load
+    _refreshAlertBadge();
+  }
+
   function bindSortBar() {
     const group = document.getElementById('sortGroup');
     if (!group) return;
@@ -305,12 +419,16 @@
   // ─────────────────────────────────────────────────
 
   function handleTickerUpdate(symbol, data) {
-    // Cache latest values for movers sort
-    _tickerData[symbol] = {
-      price:  parseFloat(data.c),
-      change: parseFloat(data.P),
-      volume: parseFloat(data.q),
-    };
+    const price  = parseFloat(data.c);
+    const change = parseFloat(data.P);
+    const volume = parseFloat(data.q);
+
+    // Cache latest values for movers sort & heatmap
+    _tickerData[symbol] = { price, change, volume };
+
+    // Check price alerts
+    if (typeof Alerts !== 'undefined') Alerts.check(symbol, price);
+
     UI.updateTickerCard(symbol, data);
   }
 
