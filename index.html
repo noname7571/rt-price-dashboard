@@ -43,7 +43,16 @@
       <button class="btn-group__btn" data-sort="volume">Volume</button>
       <button class="btn-group__btn" data-sort="price">Price</button>
     </div>
+    <div class="sort-bar__divider"></div>
+    <span class="sort-bar__label">View</span>
+    <div class="btn-group" id="viewGroup">
+      <button class="btn-group__btn btn-group__btn--active" data-view="cards">Cards</button>
+      <button class="btn-group__btn" data-view="heatmap">Heatmap</button>
+    </div>
   </div>
+
+  <!-- ───────────── HEATMAP PANEL ───────────── -->
+  <section class="heatmap-panel" id="heatmapPanel" hidden></section>
 
   <!-- ───────────── TICKER CARDS ───────────── -->
   <section class="tickers" id="tickerList">

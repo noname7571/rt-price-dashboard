@@ -77,6 +77,7 @@
     bindFullscreen();
     bindKeyboardShortcuts(streams, chart);
     bindSortBar();
+    bindViewToggle(streams, chart);
     bindTutorial();
     bindTipBanner();
   });
@@ -178,6 +179,86 @@
 
   // Last-known ticker data per symbol — populated by handleTickerUpdate
   const _tickerData = {};
+
+  // ─────────────────────────────────────────────────
+  //  Heatmap view
+  // ─────────────────────────────────────────────────
+
+  function changeToHeatColor(pct) {
+    if (pct <= -10) return '#7f1d1d';
+    if (pct <=  -5) return '#991b1b';
+    if (pct <=  -2) return '#b91c1c';
+    if (pct <    0) return '#ef4444';
+    if (pct ===  0) return '#374151';
+    if (pct <    2) return '#16a34a';
+    if (pct <    5) return '#15803d';
+    if (pct <   10) return '#166534';
+    return '#14532d';
+  }
+
+  function renderHeatmap(streams, chart) {
+    const panel = document.getElementById('heatmapPanel');
+    if (!panel) return;
+    panel.innerHTML = '';
+
+    SYMBOLS.forEach(sym => {
+      const data      = _tickerData[sym] || {};
+      const change    = data.change !== undefined ? data.change : null;
+      const price     = data.price  || 0;
+      const base      = sym.replace('usdt', '').toUpperCase();
+      const changeStr = change !== null
+        ? `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`
+        : '—';
+      const priceStr  = price
+        ? `$${price.toLocaleString('en-US', { maximumFractionDigits: 2 })}`
+        : '—';
+
+      const tile = document.createElement('div');
+      tile.className = 'heatmap-tile';
+      tile.style.background = change !== null ? changeToHeatColor(change) : '#374151';
+      tile.title = `${base}/USDT — click to view chart`;
+      tile.innerHTML = `
+        <span class="heatmap-tile__symbol">${base}</span>
+        <span class="heatmap-tile__change">${changeStr}</span>
+        <span class="heatmap-tile__price">${priceStr}</span>
+      `;
+      tile.addEventListener('click', () => {
+        switchToCardsView();
+        selectSymbol(sym, streams, chart);
+      });
+      panel.appendChild(tile);
+    });
+  }
+
+  function switchToCardsView() {
+    document.getElementById('tickerList')?.removeAttribute('hidden');
+    document.getElementById('heatmapPanel')?.setAttribute('hidden', '');
+    const viewGroup = document.getElementById('viewGroup');
+    viewGroup?.querySelectorAll('.btn-group__btn').forEach(b =>
+      b.classList.toggle('btn-group__btn--active', b.dataset.view === 'cards')
+    );
+  }
+
+  function bindViewToggle(streams, chart) {
+    const group = document.getElementById('viewGroup');
+    if (!group) return;
+    group.addEventListener('click', (e) => {
+      const btn = e.target.closest('.btn-group__btn');
+      if (!btn) return;
+      const view = btn.dataset.view;
+      if (!view) return;
+      group.querySelectorAll('.btn-group__btn').forEach(b =>
+        b.classList.toggle('btn-group__btn--active', b === btn)
+      );
+      if (view === 'heatmap') {
+        renderHeatmap(streams, chart);
+        document.getElementById('tickerList')?.setAttribute('hidden', '');
+        document.getElementById('heatmapPanel')?.removeAttribute('hidden');
+      } else {
+        switchToCardsView();
+      }
+    });
+  }
 
   function bindSortBar() {
     const group = document.getElementById('sortGroup');

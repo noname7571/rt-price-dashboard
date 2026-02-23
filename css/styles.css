@@ -160,6 +160,68 @@ body {
   user-select: none;
 }
 
+.sort-bar__divider {
+  width: 1px;
+  height: 18px;
+  background: var(--border-subtle);
+  margin: 0 6px;
+  flex-shrink: 0;
+}
+
+/* ══════════════════════════════════════════════
+   HEATMAP
+══════════════════════════════════════════════ */
+.heatmap-panel {
+  grid-row: 3;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding: 20px;
+  background: var(--bg-base);
+  border-bottom: 1px solid var(--border-subtle);
+  overflow-y: auto;
+}
+
+.heatmap-panel[hidden] { display: none; }
+
+.heatmap-tile {
+  border-radius: 8px;
+  padding: 22px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+  transition: opacity var(--transition), transform var(--transition);
+  color: #fff;
+  user-select: none;
+  min-height: 100px;
+}
+
+.heatmap-tile:hover {
+  opacity: 0.82;
+  transform: translateY(-2px);
+}
+
+.heatmap-tile__symbol {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.heatmap-tile__change {
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.heatmap-tile__price {
+  font-size: 11px;
+  opacity: 0.75;
+  margin-top: 4px;
+}
+
 /* ══════════════════════════════════════════════
    TICKER CARDS
 ══════════════════════════════════════════════ */
